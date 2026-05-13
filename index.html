@@ -10,14 +10,14 @@ name="viewport"
 content="width=device-width, initial-scale=1.0"
 />
 
-<title>Cinematic Milky Way</title>
+<title>Ultimate Realistic Milky Way</title>
 
 <style>
 
-body{
+html,body{
     margin:0;
     overflow:hidden;
-    background:black;
+    background:#000;
     font-family:Arial;
 }
 
@@ -25,23 +25,32 @@ canvas{
     display:block;
 }
 
-#ui{
+#panel{
+
     position:absolute;
     top:10px;
     left:10px;
+
+    width:340px;
+
     color:white;
+
     background:rgba(0,0,0,0.45);
-    padding:15px;
-    border-radius:12px;
-    z-index:100;
-    width:320px;
-    line-height:1.6;
+
+    padding:18px;
+
+    border-radius:14px;
+
     backdrop-filter:blur(5px);
+
+    line-height:1.7;
+
+    z-index:100;
 }
 
 #title{
+    font-size:24px;
     color:#ffd27f;
-    font-size:22px;
     margin-bottom:10px;
 }
 
@@ -55,31 +64,35 @@ canvas{
 
 <body>
 
-<div id="ui">
+<div id="panel">
 
 <div id="title">
-CINEMATIC MILKY WAY
+ULTIMATE MILKY WAY
 </div>
 
 <div class="highlight">
-Included Features
+Ultra Realistic Features
 </div>
 
-✅ Barred Spiral Galaxy<br>
-✅ Density-Wave Motion<br>
-✅ Nebula Clouds<br>
-✅ Multiple Stellar Classes<br>
-✅ Dust Scattering<br>
-✅ Real Spiral Arms<br>
-✅ Sagittarius A*<br>
-✅ HDR Bloom Feel<br>
-✅ Volumetric Glow<br>
-✅ Flythrough Navigation<br>
-✅ Time Evolution<br><br>
+• True Barred Spiral<br>
+• Multi-Layer Galactic Disk<br>
+• Density Wave Physics<br>
+• Real Stellar Populations<br>
+• Blue Giants / Red Giants<br>
+• Nebula Regions<br>
+• Molecular Dust Clouds<br>
+• Halo Population<br>
+• Sagittarius A*<br>
+• Volumetric Galactic Core<br>
+• HDR Cinematic Glow<br>
+• Differential Rotation<br>
+• Orion Arm Sun Position<br>
+• Flythrough Navigation<br>
+• Galactic Time Evolution<br><br>
 
 WASD = Fly<br>
-Mouse Drag = Rotate<br>
-Scroll = Zoom
+Q/E = Vertical Move<br>
+Mouse Drag = Rotate
 
 </div>
 
@@ -99,7 +112,7 @@ new THREE.Scene();
 scene.fog =
 new THREE.FogExp2(
 0x000000,
-0.00013
+0.00011
 );
 
 
@@ -112,13 +125,13 @@ new THREE.PerspectiveCamera(
 70,
 window.innerWidth/window.innerHeight,
 0.1,
-50000
+120000
 );
 
 camera.position.set(
 0,
-350,
-1800
+450,
+2400
 );
 
 
@@ -128,7 +141,12 @@ camera.position.set(
 
 const renderer =
 new THREE.WebGLRenderer({
-    antialias:true
+
+    antialias:true,
+
+    powerPreference:
+    "high-performance"
+
 });
 
 renderer.setSize(
@@ -147,7 +165,7 @@ renderer.toneMapping =
 THREE.ACESFilmicToneMapping;
 
 renderer.toneMappingExposure =
-1.4;
+1.65;
 
 document.body.appendChild(
 renderer.domElement
@@ -165,31 +183,39 @@ renderer.domElement
 );
 
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
+controls.dampingFactor = 0.04;
+
+controls.minDistance = 80;
+controls.maxDistance = 60000;
 
 
 // ======================================================
-// LIGHTING
+// LIGHTS
 // ======================================================
 
 scene.add(
+
 new THREE.AmbientLight(
 0xffffff,
 0.35
-));
+)
 
-const coreLight =
-new THREE.PointLight(
-0xffcc88,
-5,
-8000
 );
 
-scene.add(coreLight);
+const galacticCoreLight =
+new THREE.PointLight(
+0xffcc88,
+8,
+12000
+);
+
+scene.add(
+galacticCoreLight
+);
 
 
 // ======================================================
-// GALAXY
+// MAIN GALAXY GROUP
 // ======================================================
 
 const galaxyGroup =
@@ -199,72 +225,96 @@ scene.add(galaxyGroup);
 
 
 // ======================================================
-// PARAMETERS
+// GALAXY PARAMETERS
 // ======================================================
 
-const STAR_COUNT = 280000;
+const STAR_COUNT = 420000;
 
-const galaxyRadius = 2600;
+const galaxyRadius = 4200;
 
 const spiralArms = 4;
 
+const starData = [];
+
+
+// ======================================================
+// STAR GEOMETRY
+// ======================================================
+
 const positions =
-new Float32Array(STAR_COUNT*3);
+new Float32Array(
+STAR_COUNT*3
+);
 
 const colors =
-new Float32Array(STAR_COUNT*3);
+new Float32Array(
+STAR_COUNT*3
+);
+
+const sizes =
+new Float32Array(
+STAR_COUNT
+);
 
 const geometry =
 new THREE.BufferGeometry();
-
-const starData = [];
 
 
 // ======================================================
 // COLORS
 // ======================================================
 
-const blue =
-new THREE.Color(0.6,0.8,1);
+const O_STAR =
+new THREE.Color(0.55,0.75,1);
 
-const white =
+const B_STAR =
+new THREE.Color(0.7,0.82,1);
+
+const A_STAR =
+new THREE.Color(0.85,0.9,1);
+
+const F_STAR =
 new THREE.Color(1,1,1);
 
-const yellow =
-new THREE.Color(1,0.92,0.7);
+const G_STAR =
+new THREE.Color(1,0.95,0.75);
 
-const orange =
-new THREE.Color(1,0.65,0.35);
+const K_STAR =
+new THREE.Color(1,0.75,0.45);
 
-const red =
-new THREE.Color(1,0.35,0.35);
+const M_STAR =
+new THREE.Color(1,0.42,0.35);
 
 
 // ======================================================
-// STARS
+// TRUE BARRED SPIRAL GALAXY
 // ======================================================
 
 for(let i=0;i<STAR_COUNT;i++){
 
-    const i3=i*3;
+    const i3 = i*3;
+
+    // ==================================================
+    // RADIAL DISTRIBUTION
+    // ==================================================
 
     const radius =
     Math.pow(
     Math.random(),
-    0.58
+    0.52
     ) * galaxyRadius;
 
     // ==================================================
-    // BARRED SPIRAL
+    // BAR STRUCTURE
     // ==================================================
 
     let angle;
 
-    if(radius < 450){
+    if(radius < 650){
 
         angle =
         (Math.random()-0.5)
-        * Math.PI*0.25;
+        * Math.PI*0.18;
 
     }else{
 
@@ -274,74 +324,156 @@ for(let i=0;i<STAR_COUNT;i++){
 
         angle =
         arm
-        + radius*0.0105;
+        + radius*0.0085;
     }
 
     // ==================================================
-    // DENSITY WAVES
+    // DENSITY WAVE PHYSICS
     // ==================================================
 
-    const wave =
-    Math.sin(radius*0.03)
-    * 40;
+    const densityWave =
+    Math.sin(
+    radius*0.026
+    ) * 55;
 
-    const spread =
-    50 * (1-radius/galaxyRadius);
+    // ==================================================
+    // MULTI-DISK STRUCTURE
+    // ==================================================
 
-    const x =
-    Math.cos(angle)
-    * (radius+wave)
-    + (Math.random()-0.5)
-    * spread;
-
-    const z =
-    Math.sin(angle)
-    * (radius+wave)
-    + (Math.random()-0.5)
-    * spread;
-
-    // thin disk + thick disk
-    const y =
+    const thinDisk =
     Math.pow(
     (Math.random()-0.5),
     3
-    ) * 180;
+    ) * 120;
+
+    const thickDisk =
+    Math.pow(
+    (Math.random()-0.5),
+    3
+    ) * 260;
+
+    const y =
+    Math.random()>0.82
+    ? thickDisk
+    : thinDisk;
+
+    // ==================================================
+    // DUST SCATTERING
+    // ==================================================
+
+    const dustScatter =
+    Math.random()<0.22
+    ? 0.45
+    : 1;
+
+    // ==================================================
+    // SPIRAL POSITIONS
+    // ==================================================
+
+    const spread =
+    75 * (1-radius/galaxyRadius);
+
+    const x =
+    Math.cos(angle)
+    * (radius+densityWave)
+    + (Math.random()-0.5)
+    * spread
+    * dustScatter;
+
+    const z =
+    Math.sin(angle)
+    * (radius+densityWave)
+    + (Math.random()-0.5)
+    * spread
+    * dustScatter;
 
     positions[i3]=x;
     positions[i3+1]=y;
     positions[i3+2]=z;
 
     // ==================================================
-    // STELLAR CLASSES
+    // REAL STELLAR POPULATIONS
     // ==================================================
 
-    let c;
+    let starColor;
 
-    const r=Math.random();
+    let size;
 
-    if(radius<320){
+    const r = Math.random();
 
-        c =
-        r<0.7
-        ? yellow
-        : orange;
+    // bulge population
+    if(radius < 500){
 
-    }else if(r>0.985){
+        if(r<0.5){
 
-        c = blue;
+            starColor = G_STAR;
+            size = 2.4;
 
-    }else if(r>0.92){
+        }else{
 
-        c = red;
+            starColor = K_STAR;
+            size = 2.9;
+        }
 
-    }else{
-
-        c = white;
     }
 
-    colors[i3]=c.r;
-    colors[i3+1]=c.g;
-    colors[i3+2]=c.b;
+    // rare blue giants
+    else if(r>0.996){
+
+        starColor = O_STAR;
+        size = 6;
+
+    }
+
+    // hot stars
+    else if(r>0.985){
+
+        starColor = B_STAR;
+        size = 4.5;
+
+    }
+
+    // white stars
+    else if(r>0.85){
+
+        starColor = F_STAR;
+        size = 2.5;
+
+    }
+
+    // sun-like
+    else if(r>0.55){
+
+        starColor = G_STAR;
+        size = 2.2;
+
+    }
+
+    // orange stars
+    else if(r>0.25){
+
+        starColor = K_STAR;
+        size = 2.0;
+
+    }
+
+    // red dwarfs
+    else{
+
+        starColor = M_STAR;
+        size = 1.4;
+    }
+
+    colors[i3] =
+    starColor.r;
+
+    colors[i3+1] =
+    starColor.g;
+
+    colors[i3+2] =
+    starColor.b;
+
+    sizes[i] = size;
 
     // ==================================================
     // DIFFERENTIAL ROTATION
@@ -349,20 +481,25 @@ for(let i=0;i<STAR_COUNT;i++){
 
     let speed;
 
-    if(radius<350){
+    if(radius < 600){
 
-        speed = 0.0017;
+        speed =
+        0.0015;
 
     }else{
 
-        speed = 0.00035;
+        speed =
+        0.00028;
     }
 
     starData.push({
 
         radius:radius,
+
         angle:Math.atan2(z,x),
+
         y:y,
+
         speed:speed
 
     });
@@ -375,18 +512,78 @@ for(let i=0;i<STAR_COUNT;i++){
 // ======================================================
 
 geometry.setAttribute(
+
 'position',
+
 new THREE.BufferAttribute(
 positions,
 3
+
 ));
 
 geometry.setAttribute(
+
 'color',
+
 new THREE.BufferAttribute(
 colors,
 3
+
 ));
+
+
+// ======================================================
+// CUSTOM STAR TEXTURE
+// ======================================================
+
+const starCanvas =
+document.createElement('canvas');
+
+starCanvas.width = 64;
+starCanvas.height = 64;
+
+const ctx =
+starCanvas.getContext('2d');
+
+const gradient =
+ctx.createRadialGradient(
+32,32,0,
+32,32,32
+);
+
+gradient.addColorStop(
+0,
+'rgba(255,255,255,1)'
+);
+
+gradient.addColorStop(
+0.15,
+'rgba(255,255,255,1)'
+);
+
+gradient.addColorStop(
+0.45,
+'rgba(255,255,255,0.35)'
+);
+
+gradient.addColorStop(
+1,
+'rgba(255,255,255,0)'
+);
+
+ctx.fillStyle = gradient;
+
+ctx.fillRect(
+0,
+0,
+64,
+64
+);
+
+const starTexture =
+new THREE.CanvasTexture(
+starCanvas
+);
 
 
 // ======================================================
@@ -396,13 +593,15 @@ colors,
 const material =
 new THREE.PointsMaterial({
 
-    size:2.3,
+    size:2.4,
+
+    map:starTexture,
 
     vertexColors:true,
 
     transparent:true,
 
-    opacity:0.96,
+    opacity:1,
 
     depthWrite:false,
 
@@ -413,7 +612,7 @@ new THREE.PointsMaterial({
 
 
 // ======================================================
-// GALAXY POINTS
+// GALAXY
 // ======================================================
 
 const galaxy =
@@ -422,7 +621,9 @@ geometry,
 material
 );
 
-galaxyGroup.add(galaxy);
+galaxyGroup.add(
+galaxy
+);
 
 
 // ======================================================
@@ -430,11 +631,10 @@ galaxyGroup.add(galaxy);
 // ======================================================
 
 function createNebula(
-x,
-y,
-z,
-colorHex,
-size
+x,y,z,
+r,g,b,
+size,
+opacity
 ){
 
     const geo =
@@ -447,47 +647,54 @@ size
     const mat =
     new THREE.MeshBasicMaterial({
 
-        color:colorHex,
+        color:
+        new THREE.Color(
+        r,g,b
+        ),
 
         transparent:true,
 
-        opacity:0.05
+        opacity:opacity
 
     });
 
-    const nebula =
+    const cloud =
     new THREE.Mesh(
     geo,
     mat
     );
 
-    nebula.position.set(
+    cloud.position.set(
     x,y,z
     );
 
     galaxyGroup.add(
-    nebula
+    cloud
     );
 
 }
 
-for(let i=0;i<25;i++){
+
+// Orion nebula style regions
+for(let i=0;i<45;i++){
 
     createNebula(
 
-    (Math.random()-0.5)*3000,
+    (Math.random()-0.5)*6500,
 
-    (Math.random()-0.5)*200,
+    (Math.random()-0.5)*350,
 
-    (Math.random()-0.5)*3000,
+    (Math.random()-0.5)*6500,
 
-    new THREE.Color(
     Math.random()*0.4+0.6,
-    Math.random()*0.4,
-    Math.random()*0.8+0.2
-    ),
 
-    120+Math.random()*220
+    Math.random()*0.3,
+
+    Math.random()*0.9+0.2,
+
+    180+Math.random()*450,
+
+    0.035+Math.random()*0.03
 
     );
 
@@ -495,20 +702,20 @@ for(let i=0;i<25;i++){
 
 
 // ======================================================
-// DUST LANES
+// MOLECULAR DUST CLOUDS
 // ======================================================
 
 const dustGeometry =
 new THREE.BufferGeometry();
 
-const dustCount = 50000;
+const DUST_COUNT = 120000;
 
 const dustPositions =
 new Float32Array(
-dustCount*3
+DUST_COUNT*3
 );
 
-for(let i=0;i<dustCount;i++){
+for(let i=0;i<DUST_COUNT;i++){
 
     const i3=i*3;
 
@@ -516,20 +723,20 @@ for(let i=0;i<dustCount;i++){
     Math.random()*galaxyRadius;
 
     const angle =
-    radius*0.0105;
+    radius*0.0085;
 
     dustPositions[i3] =
     Math.cos(angle)
     * radius
-    + (Math.random()-0.5)*90;
+    + (Math.random()-0.5)*120;
 
     dustPositions[i3+1] =
-    (Math.random()-0.5)*40;
+    (Math.random()-0.5)*55;
 
     dustPositions[i3+2] =
     Math.sin(angle)
     * radius
-    + (Math.random()-0.5)*90;
+    + (Math.random()-0.5)*120;
 
 }
 
@@ -547,30 +754,32 @@ dustGeometry,
 
 new THREE.PointsMaterial({
 
-    color:0x221100,
+    color:0x140b07,
 
-    size:4,
+    size:6,
 
     transparent:true,
 
-    opacity:0.18
+    opacity:0.15
 
 })
 
 );
 
-galaxyGroup.add(dust);
+galaxyGroup.add(
+dust
+);
 
 
 // ======================================================
-// BLACK HOLE
+// SAGITTARIUS A*
 // ======================================================
 
 const blackHole =
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
-30,
+45,
 64,
 64
 ),
@@ -590,14 +799,14 @@ blackHole
 // ACCRETION DISK
 // ======================================================
 
-const disk =
+const accretion =
 new THREE.Mesh(
 
 new THREE.TorusGeometry(
-75,
-9,
+130,
+15,
 32,
-250
+300
 ),
 
 new THREE.MeshBasicMaterial({
@@ -610,25 +819,25 @@ new THREE.MeshBasicMaterial({
 
 );
 
-disk.rotation.x =
+accretion.rotation.x =
 Math.PI/2;
 
 galaxyGroup.add(
-disk
+accretion
 );
 
 
 // ======================================================
-// VOLUMETRIC CORE GLOW
+// VOLUMETRIC CORE
 // ======================================================
 
-const glow =
+const coreGlow =
 new THREE.Mesh(
 
 new THREE.SphereGeometry(
-180,
-32,
-32
+320,
+64,
+64
 ),
 
 new THREE.MeshBasicMaterial({
@@ -637,53 +846,25 @@ new THREE.MeshBasicMaterial({
 
     transparent:true,
 
-    opacity:0.08
+    opacity:0.06
 
 })
 
-);
-
-galaxyGroup.add(glow);
-
-
-// ======================================================
-// SUN POSITION
-// ======================================================
-
-const sun =
-new THREE.Mesh(
-
-new THREE.SphereGeometry(
-8,
-16,
-16
-),
-
-new THREE.MeshBasicMaterial({
-    color:0xffffaa
-})
-
-);
-
-sun.position.set(
-980,
-8,
-0
 );
 
 galaxyGroup.add(
-sun
+coreGlow
 );
 
 
 // ======================================================
-// HALO STARS
+// STELLAR HALO
 // ======================================================
 
 const haloGeometry =
 new THREE.BufferGeometry();
 
-const HALO_COUNT = 35000;
+const HALO_COUNT = 60000;
 
 const haloPositions =
 new Float32Array(
@@ -695,8 +876,8 @@ for(let i=0;i<HALO_COUNT;i++){
     const i3=i*3;
 
     const r =
-    3000
-    + Math.random()*3500;
+    5200
+    + Math.random()*5200;
 
     const theta =
     Math.random()*Math.PI*2;
@@ -735,11 +916,11 @@ new THREE.PointsMaterial({
 
     color:0xaaccff,
 
-    size:1.6,
+    size:1.5,
 
     transparent:true,
 
-    opacity:0.28
+    opacity:0.22
 
 })
 
@@ -751,24 +932,54 @@ halo
 
 
 // ======================================================
+// SUN POSITION
+// ======================================================
+
+const sun =
+new THREE.Mesh(
+
+new THREE.SphereGeometry(
+10,
+16,
+16
+),
+
+new THREE.MeshBasicMaterial({
+    color:0xffffaa
+})
+
+);
+
+sun.position.set(
+1600,
+15,
+0
+);
+
+galaxyGroup.add(
+sun
+);
+
+
+// ======================================================
 // BACKGROUND STARS
 // ======================================================
 
 const bgGeometry =
 new THREE.BufferGeometry();
 
-const bgCount = 50000;
+const BG_COUNT = 90000;
 
 const bgPositions =
 new Float32Array(
-bgCount*3
+BG_COUNT*3
 );
 
-for(let i=0;i<bgCount*3;i++){
+for(let i=0;i<BG_COUNT*3;i++){
 
     bgPositions[i] =
     (Math.random()-0.5)
-    * 180000;
+    * 300000;
 }
 
 bgGeometry.setAttribute(
@@ -798,7 +1009,7 @@ new THREE.PointsMaterial({
 
 
 // ======================================================
-// FLY CONTROLS
+// MOVEMENT
 // ======================================================
 
 const keys = {};
@@ -839,12 +1050,12 @@ function updateGalaxy(){
 
         s.angle += s.speed;
 
-        // density wave evolution
+        // dynamic density waves
         const wave =
         Math.sin(
-        s.radius*0.03
+        s.radius*0.026
         + time
-        ) * 40;
+        ) * 55;
 
         pos[i3] =
         Math.cos(s.angle)
@@ -866,42 +1077,30 @@ function updateGalaxy(){
 
 
 // ======================================================
-// FLY MOVEMENT
+// FLY CAMERA
 // ======================================================
 
 function updateMovement(){
 
-    const speed = 8;
+    const speed = 16;
 
-    if(keys["w"]){
+    if(keys["w"])
+    camera.translateZ(-speed);
 
-        camera.translateZ(-speed);
-    }
+    if(keys["s"])
+    camera.translateZ(speed);
 
-    if(keys["s"]){
+    if(keys["a"])
+    camera.translateX(-speed);
 
-        camera.translateZ(speed);
-    }
+    if(keys["d"])
+    camera.translateX(speed);
 
-    if(keys["a"]){
+    if(keys["q"])
+    camera.translateY(speed);
 
-        camera.translateX(-speed);
-    }
-
-    if(keys["d"]){
-
-        camera.translateX(speed);
-    }
-
-    if(keys["q"]){
-
-        camera.translateY(speed);
-    }
-
-    if(keys["e"]){
-
-        camera.translateY(-speed);
-    }
+    if(keys["e"])
+    camera.translateY(-speed);
 
 }
 
@@ -916,20 +1115,25 @@ function animate(){
     animate
     );
 
-    time += 0.002;
+    time += 0.0018;
 
     updateGalaxy();
 
     updateMovement();
 
-    disk.rotation.z += 0.018;
-
-    glow.scale.setScalar(
-    1 + Math.sin(time*2)*0.03
-    );
-
+    // galaxy drift
     galaxyGroup.rotation.y +=
-    0.00004;
+    0.00003;
+
+    // black hole disk
+    accretion.rotation.z +=
+    0.012;
+
+    // breathing glow
+    coreGlow.scale.setScalar(
+    1
+    + Math.sin(time*2)*0.035
+    );
 
     controls.update();
 
