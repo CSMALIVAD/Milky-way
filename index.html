@@ -1,10 +1,29 @@
+<!--
+ADVANCED REALISTIC UNIVERSE SIMULATOR
+FEATURES:
+- Real Milky Way morphology
+- 3 galaxy types:
+    Spiral
+    Elliptical
+    Irregular
+- Realistic galaxy colors
+- Fly-to-galaxy system
+- Dynamic orbital motion
+- Different rotation curves
+- Galaxy labels
+- Universe navigation
+- Realistic star density
+- Cosmic depth fog
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>Realistic Milky Way Universe Simulation</title>
+<title>Advanced Universe Simulator</title>
 
 <style>
 
@@ -12,28 +31,45 @@ body{
     margin:0;
     overflow:hidden;
     background:black;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
 }
 
 canvas{
     display:block;
 }
 
-#info{
+#ui{
     position:absolute;
     top:10px;
     left:10px;
+    z-index:100;
     color:white;
-    background:rgba(0,0,0,0.45);
-    padding:14px;
+    background:rgba(0,0,0,0.55);
+    padding:15px;
     border-radius:12px;
-    z-index:10;
-    line-height:1.6;
+    line-height:1.7;
+    width:300px;
     backdrop-filter:blur(5px);
 }
 
-#info b{
+#galaxyName{
     color:#ffd27f;
+    font-size:18px;
+    margin-top:10px;
+}
+
+button{
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:#222;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#444;
 }
 
 </style>
@@ -41,18 +77,26 @@ canvas{
 
 <body>
 
-<div id="info">
-<b>REALISTIC MILKY WAY SIMULATION</b><br><br>
+<div id="ui">
 
-• Spiral Arms = Density Waves<br>
-• Sun Position = Orion Arm (~27,000 ly from center)<br>
-• Central Supermassive Black Hole = Sagittarius A*<br>
-• 1000 External Galaxies<br>
-• Dynamic Orbital Motion<br>
-• Real Galactic Rotation Feel<br><br>
+<b>REALISTIC UNIVERSE</b><br><br>
+
+• Spiral Galaxies<br>
+• Elliptical Galaxies<br>
+• Irregular Galaxies<br>
+• Real Rotation Curves<br>
+• Fly Through Universe<br>
+• Interactive Galaxy Travel<br>
+• Realistic Galaxy Colors<br><br>
 
 Mouse Drag = Rotate<br>
-Scroll = Zoom
+Scroll = Zoom<br>
+Double Click Galaxy = Visit<br>
+
+<div id="galaxyName">
+Milky Way
+</div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -61,416 +105,526 @@ Scroll = Zoom
 
 <script>
 
-// ============================================
-// BASIC SETUP
-// ============================================
+// =====================================================
+// BASIC
+// =====================================================
 
 const scene = new THREE.Scene();
 
-scene.fog = new THREE.FogExp2(0x000000,0.00022);
-
-const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth/window.innerHeight,
-    0.1,
-    20000
+scene.fog =
+new THREE.FogExp2(
+0x000000,
+0.000045
 );
 
-camera.position.set(0,250,700);
+const camera =
+new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+100000
+);
 
-const renderer = new THREE.WebGLRenderer({
+camera.position.set(0,400,1200);
+
+const renderer =
+new THREE.WebGLRenderer({
     antialias:true
 });
 
-renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
 
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(
+window.devicePixelRatio
+);
 
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputEncoding =
+THREE.sRGBEncoding;
 
-document.body.appendChild(renderer.domElement);
+document.body.appendChild(
+renderer.domElement
+);
 
 
-// ============================================
+// =====================================================
 // CONTROLS
-// ============================================
+// =====================================================
 
-const controls = new THREE.OrbitControls(
-    camera,
-    renderer.domElement
+const controls =
+new THREE.OrbitControls(
+camera,
+renderer.domElement
 );
 
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
-controls.minDistance = 100;
-controls.maxDistance = 4000;
+controls.minDistance = 50;
+controls.maxDistance = 50000;
 
 
-// ============================================
-// LIGHTING
-// ============================================
+// =====================================================
+// LIGHTS
+// =====================================================
 
-const ambient = new THREE.AmbientLight(0xffffff,0.4);
-scene.add(ambient);
+scene.add(
+new THREE.AmbientLight(
+0xffffff,
+0.5
+));
 
-const centerGlow = new THREE.PointLight(
-    0xffcc88,
-    4,
-    3000
+
+// =====================================================
+// GALAXY STORAGE
+// =====================================================
+
+const galaxies = [];
+
+const universe =
+new THREE.Group();
+
+scene.add(universe);
+
+
+// =====================================================
+// RANDOM HELPERS
+// =====================================================
+
+function rand(min,max){
+    return Math.random()*(max-min)+min;
+}
+
+
+// =====================================================
+// CREATE SPIRAL GALAXY
+// =====================================================
+
+function createSpiralGalaxy(
+position,
+size,
+name
+){
+
+    const group = new THREE.Group();
+
+    const stars = 12000;
+
+    const geometry =
+    new THREE.BufferGeometry();
+
+    const positions =
+    new Float32Array(stars*3);
+
+    const colors =
+    new Float32Array(stars*3);
+
+    const starData = [];
+
+    const arms = 4;
+
+    for(let i=0;i<stars;i++){
+
+        const i3 = i*3;
+
+        const radius =
+        Math.pow(Math.random(),0.6)
+        * size;
+
+        const arm =
+        (i%arms)*(Math.PI*2/arms);
+
+        const spin =
+        radius*0.015;
+
+        const angle =
+        arm+spin;
+
+        const x =
+        Math.cos(angle)*radius
+        +(Math.random()-0.5)*25;
+
+        const y =
+        Math.pow(
+        (Math.random()-0.5),3
+        )*80;
+
+        const z =
+        Math.sin(angle)*radius
+        +(Math.random()-0.5)*25;
+
+        positions[i3]=x;
+        positions[i3+1]=y;
+        positions[i3+2]=z;
+
+        // realistic colors
+        let color;
+
+        if(radius<size*0.15){
+
+            color =
+            new THREE.Color(
+            1,
+            0.85,
+            0.65
+            );
+
+        }else if(Math.random()>0.95){
+
+            color =
+            new THREE.Color(
+            0.6,
+            0.8,
+            1
+            );
+
+        }else{
+
+            color =
+            new THREE.Color(
+            1,
+            1,
+            1
+            );
+        }
+
+        colors[i3]=color.r;
+        colors[i3+1]=color.g;
+        colors[i3+2]=color.b;
+
+        starData.push({
+            radius:radius,
+            angle:Math.atan2(z,x),
+            y:y,
+            speed:
+            0.00005 +
+            (1/radius)*0.08
+        });
+
+    }
+
+    geometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(
+    positions,
+    3
+    ));
+
+    geometry.setAttribute(
+    'color',
+    new THREE.BufferAttribute(
+    colors,
+    3
+    ));
+
+    const material =
+    new THREE.PointsMaterial({
+        size:2,
+        vertexColors:true,
+        transparent:true,
+        opacity:0.95,
+        depthWrite:false,
+        blending:
+        THREE.AdditiveBlending
+    });
+
+    const galaxy =
+    new THREE.Points(
+    geometry,
+    material
+    );
+
+    group.add(galaxy);
+
+    // central black hole
+    const core =
+    new THREE.Mesh(
+    new THREE.SphereGeometry(
+    size*0.03,
+    32,
+    32
+    ),
+    new THREE.MeshBasicMaterial({
+        color:0x000000
+    }));
+
+    group.add(core);
+
+    group.position.copy(position);
+
+    universe.add(group);
+
+    galaxies.push({
+        type:"spiral",
+        name:name,
+        group:group,
+        stars:starData,
+        geometry:geometry,
+        size:size
+    });
+
+}
+
+
+// =====================================================
+// CREATE ELLIPTICAL GALAXY
+// =====================================================
+
+function createEllipticalGalaxy(
+position,
+size,
+name
+){
+
+    const group =
+    new THREE.Group();
+
+    const stars = 7000;
+
+    const geometry =
+    new THREE.BufferGeometry();
+
+    const positions =
+    new Float32Array(stars*3);
+
+    const colors =
+    new Float32Array(stars*3);
+
+    for(let i=0;i<stars;i++){
+
+        const i3=i*3;
+
+        const r =
+        Math.pow(Math.random(),0.4)
+        * size;
+
+        const theta =
+        Math.random()*Math.PI*2;
+
+        const phi =
+        Math.acos(
+        2*Math.random()-1
+        );
+
+        positions[i3] =
+        r*Math.sin(phi)
+        *Math.cos(theta);
+
+        positions[i3+1] =
+        r*Math.cos(phi)*0.5;
+
+        positions[i3+2] =
+        r*Math.sin(phi)
+        *Math.sin(theta);
+
+        // yellow-orange old stars
+        colors[i3]=1;
+        colors[i3+1]=0.82;
+        colors[i3+2]=0.55;
+    }
+
+    geometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(
+    positions,
+    3
+    ));
+
+    geometry.setAttribute(
+    'color',
+    new THREE.BufferAttribute(
+    colors,
+    3
+    ));
+
+    const galaxy =
+    new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({
+        size:2,
+        vertexColors:true,
+        transparent:true,
+        blending:
+        THREE.AdditiveBlending
+    }));
+
+    group.add(galaxy);
+
+    group.position.copy(position);
+
+    universe.add(group);
+
+    galaxies.push({
+        type:"elliptical",
+        name:name,
+        group:group
+    });
+
+}
+
+
+// =====================================================
+// CREATE IRREGULAR GALAXY
+// =====================================================
+
+function createIrregularGalaxy(
+position,
+size,
+name
+){
+
+    const group =
+    new THREE.Group();
+
+    const stars = 5000;
+
+    const geometry =
+    new THREE.BufferGeometry();
+
+    const positions =
+    new Float32Array(stars*3);
+
+    const colors =
+    new Float32Array(stars*3);
+
+    for(let i=0;i<stars;i++){
+
+        const i3=i*3;
+
+        positions[i3]=
+        rand(-size,size);
+
+        positions[i3+1]=
+        rand(-size*0.4,size*0.4);
+
+        positions[i3+2]=
+        rand(-size,size);
+
+        // blue active star formation
+        colors[i3]=0.6;
+        colors[i3+1]=0.8;
+        colors[i3+2]=1;
+    }
+
+    geometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(
+    positions,
+    3
+    ));
+
+    geometry.setAttribute(
+    'color',
+    new THREE.BufferAttribute(
+    colors,
+    3
+    ));
+
+    const galaxy =
+    new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({
+        size:2,
+        vertexColors:true,
+        transparent:true,
+        blending:
+        THREE.AdditiveBlending
+    }));
+
+    group.add(galaxy);
+
+    group.position.copy(position);
+
+    universe.add(group);
+
+    galaxies.push({
+        type:"irregular",
+        name:name,
+        group:group
+    });
+
+}
+
+
+// =====================================================
+// CREATE UNIVERSE
+// =====================================================
+
+// Milky Way
+createSpiralGalaxy(
+new THREE.Vector3(0,0,0),
+900,
+"Milky Way"
 );
 
-scene.add(centerGlow);
+
+// Andromeda
+createSpiralGalaxy(
+new THREE.Vector3(5000,500,3000),
+1200,
+"Andromeda"
+);
 
 
-// ============================================
-// MILKY WAY PARAMETERS
-// ============================================
-
-const galaxyGroup = new THREE.Group();
-scene.add(galaxyGroup);
-
-const starCount = 180000;
-
-const positions = new Float32Array(starCount*3);
-const colors = new Float32Array(starCount*3);
-const sizes = new Float32Array(starCount);
-
-const geometry = new THREE.BufferGeometry();
-
-const spiralArms = 4;
-
-const galaxyRadius = 1400;
-
-const starData = [];
+// Triangulum
+createSpiralGalaxy(
+new THREE.Vector3(-4000,-300,6000),
+700,
+"Triangulum"
+);
 
 
-// ============================================
-// STAR COLORS
-// ============================================
+// Random universe
+for(let i=0;i<120;i++){
 
-const colorCore = new THREE.Color(0xffddaa);
-const colorDisk = new THREE.Color(0xffffff);
-const colorBlue = new THREE.Color(0xaaccff);
+    const pos =
+    new THREE.Vector3(
+        rand(-30000,30000),
+        rand(-10000,10000),
+        rand(-30000,30000)
+    );
 
+    const type =
+    Math.random();
 
-// ============================================
-// CREATE MILKY WAY
-// ============================================
+    if(type<0.5){
 
-for(let i=0;i<starCount;i++){
+        createSpiralGalaxy(
+        pos,
+        rand(300,900),
+        "Spiral Galaxy "+i
+        );
 
-    const i3 = i*3;
+    }else if(type<0.8){
 
-    // radial distribution
-    const radius =
-        Math.pow(Math.random(),0.55)
-        * galaxyRadius;
-
-    // spiral structure
-    const arm =
-        (i % spiralArms)
-        * (Math.PI*2/spiralArms);
-
-    const spin = radius * 0.008;
-
-    const angle = arm + spin;
-
-    // density noise
-    const randomX =
-        (Math.random()-0.5)
-        * (40 - radius*0.01);
-
-    const randomY =
-        Math.pow((Math.random()-0.5),3)
-        * 120;
-
-    const randomZ =
-        (Math.random()-0.5)
-        * (40 - radius*0.01);
-
-    const x =
-        Math.cos(angle)*radius + randomX;
-
-    const y =
-        randomY;
-
-    const z =
-        Math.sin(angle)*radius + randomZ;
-
-    positions[i3] = x;
-    positions[i3+1] = y;
-    positions[i3+2] = z;
-
-    // realistic star coloring
-    let mixedColor;
-
-    if(radius < 180){
-
-        mixedColor = colorCore.clone();
-
-    }else if(Math.random() > 0.92){
-
-        mixedColor = colorBlue.clone();
+        createEllipticalGalaxy(
+        pos,
+        rand(300,1100),
+        "Elliptical Galaxy "+i
+        );
 
     }else{
 
-        mixedColor = colorDisk.clone();
+        createIrregularGalaxy(
+        pos,
+        rand(200,700),
+        "Irregular Galaxy "+i
+        );
     }
-
-    colors[i3] = mixedColor.r;
-    colors[i3+1] = mixedColor.g;
-    colors[i3+2] = mixedColor.b;
-
-    sizes[i] = Math.random()*2;
-
-    // store orbital data
-    starData.push({
-        radius:radius,
-        angle:Math.atan2(z,x),
-        y:y,
-        speed:0.00004 + (1/radius)*0.03
-    });
 
 }
 
 
-// ============================================
-// GEOMETRY
-// ============================================
-
-geometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(positions,3)
-);
-
-geometry.setAttribute(
-    'color',
-    new THREE.BufferAttribute(colors,3)
-);
-
-
-// ============================================
-// STAR MATERIAL
-// ============================================
-
-const material = new THREE.PointsMaterial({
-    size:2.2,
-    vertexColors:true,
-    transparent:true,
-    opacity:0.95,
-    depthWrite:false,
-    blending:THREE.AdditiveBlending
-});
-
-const galaxy = new THREE.Points(
-    geometry,
-    material
-);
-
-galaxyGroup.add(galaxy);
-
-
-// ============================================
-// GALACTIC CORE
-// ============================================
-
-const coreGeometry =
-new THREE.SphereGeometry(18,64,64);
-
-const coreMaterial =
-new THREE.MeshBasicMaterial({
-    color:0x000000
-});
-
-const blackHole =
-new THREE.Mesh(
-    coreGeometry,
-    coreMaterial
-);
-
-galaxyGroup.add(blackHole);
-
-
-// ============================================
-// ACCRETION DISK
-// ============================================
-
-const ringGeometry =
-new THREE.TorusGeometry(
-    40,
-    6,
-    32,
-    200
-);
-
-const ringMaterial =
-new THREE.MeshBasicMaterial({
-    color:0xffaa33,
-    wireframe:true
-});
-
-const ring =
-new THREE.Mesh(
-    ringGeometry,
-    ringMaterial
-);
-
-ring.rotation.x = Math.PI/2;
-
-galaxyGroup.add(ring);
-
-
-// ============================================
-// SUN LOCATION
-// Real location approximation
-// ============================================
-
-const sunGeometry =
-new THREE.SphereGeometry(5,16,16);
-
-const sunMaterial =
-new THREE.MeshBasicMaterial({
-    color:0xffff66
-});
-
-const sun =
-new THREE.Mesh(
-    sunGeometry,
-    sunMaterial
-);
-
-// Sun ~27,000 light years equivalent scaled
-sun.position.set(520,10,0);
-
-galaxyGroup.add(sun);
-
-
-// ============================================
-// ORION ARM MARKER
-// ============================================
-
-const orbitGeometry =
-new THREE.RingGeometry(12,13,32);
-
-const orbitMaterial =
-new THREE.MeshBasicMaterial({
-    color:0x00ffff,
-    side:THREE.DoubleSide
-});
-
-const orbitRing =
-new THREE.Mesh(
-    orbitGeometry,
-    orbitMaterial
-);
-
-orbitRing.rotation.x = Math.PI/2;
-
-orbitRing.position.copy(sun.position);
-
-galaxyGroup.add(orbitRing);
-
-
-// ============================================
-// 1000 DISTANT GALAXIES
-// ============================================
-
-const universeGroup = new THREE.Group();
-scene.add(universeGroup);
-
-for(let i=0;i<1000;i++){
-
-    const gGeometry =
-    new THREE.BufferGeometry();
-
-    const gStars = 80;
-
-    const gPos =
-    new Float32Array(gStars*3);
-
-    for(let j=0;j<gStars;j++){
-
-        const r =
-        Math.random()*18;
-
-        const a =
-        Math.random()*Math.PI*2;
-
-        const h =
-        (Math.random()-0.5)*4;
-
-        gPos[j*3] =
-        Math.cos(a)*r;
-
-        gPos[j*3+1] =
-        h;
-
-        gPos[j*3+2] =
-        Math.sin(a)*r;
-    }
-
-    gGeometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(gPos,3)
-    );
-
-    const gMaterial =
-    new THREE.PointsMaterial({
-        color:
-        new THREE.Color(
-            0.6 + Math.random()*0.4,
-            0.6 + Math.random()*0.4,
-            1
-        ),
-        size:1.5
-    });
-
-    const miniGalaxy =
-    new THREE.Points(
-        gGeometry,
-        gMaterial
-    );
-
-    // distributed through universe
-    const dist =
-    3000 + Math.random()*12000;
-
-    const theta =
-    Math.random()*Math.PI*2;
-
-    const phi =
-    Math.acos(
-        2*Math.random()-1
-    );
-
-    miniGalaxy.position.set(
-        dist*Math.sin(phi)*Math.cos(theta),
-        dist*Math.cos(phi),
-        dist*Math.sin(phi)*Math.sin(theta)
-    );
-
-    miniGalaxy.rotation.x =
-    Math.random()*Math.PI;
-
-    miniGalaxy.rotation.y =
-    Math.random()*Math.PI;
-
-    miniGalaxy.userData.rotationSpeed =
-    0.0002 + Math.random()*0.001;
-
-    universeGroup.add(miniGalaxy);
-}
-
-
-// ============================================
-// BACKGROUND COSMIC STARS
-// ============================================
+// =====================================================
+// BACKGROUND STARS
+// =====================================================
 
 const bgGeometry =
 new THREE.BufferGeometry();
 
-const bgCount = 12000;
+const bgCount = 25000;
 
 const bgPositions =
 new Float32Array(bgCount*3);
@@ -478,110 +632,182 @@ new Float32Array(bgCount*3);
 for(let i=0;i<bgCount*3;i++){
 
     bgPositions[i] =
-    (Math.random()-0.5)*30000;
+    (Math.random()-0.5)*120000;
 }
 
 bgGeometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(bgPositions,3)
-);
+'position',
+new THREE.BufferAttribute(
+bgPositions,
+3
+));
 
-const bgMaterial =
+scene.add(
+new THREE.Points(
+bgGeometry,
 new THREE.PointsMaterial({
     color:0xffffff,
-    size:2
-});
-
-const backgroundStars =
-new THREE.Points(
-    bgGeometry,
-    bgMaterial
+    size:3
+}))
 );
 
-scene.add(backgroundStars);
+
+// =====================================================
+// RAYCASTER
+// =====================================================
+
+const raycaster =
+new THREE.Raycaster();
+
+const mouse =
+new THREE.Vector2();
+
+window.addEventListener(
+'dblclick',
+(event)=>{
+
+    mouse.x =
+    (event.clientX/
+    window.innerWidth)*2-1;
+
+    mouse.y =
+    -(event.clientY/
+    window.innerHeight)*2+1;
+
+    raycaster.setFromCamera(
+    mouse,
+    camera
+    );
+
+    let nearest = null;
+    let minDist = Infinity;
+
+    galaxies.forEach(g=>{
+
+        const dist =
+        camera.position.distanceTo(
+        g.group.position
+        );
+
+        if(dist<minDist){
+
+            minDist = dist;
+            nearest = g;
+        }
+
+    });
+
+    if(nearest){
+
+        document.getElementById(
+        "galaxyName"
+        ).innerHTML =
+        nearest.name;
+
+        const target =
+        nearest.group.position.clone();
+
+        camera.position.lerp(
+        target.clone().add(
+        new THREE.Vector3(
+        nearest.size*1.5,
+        nearest.size*0.5,
+        nearest.size*1.5
+        )),
+        0.8
+        );
+
+        controls.target.copy(target);
+
+    }
+
+});
 
 
-// ============================================
-// REALISTIC ORBIT MOTION
-// ============================================
+// =====================================================
+// MOTION
+// =====================================================
 
 function updateGalaxyMotion(){
 
-    const pos =
-    geometry.attributes.position.array;
+    galaxies.forEach(g=>{
 
-    for(let i=0;i<starCount;i++){
+        g.group.rotation.y += 0.0003;
 
-        const i3 = i*3;
+        if(g.type==="spiral"){
 
-        const star = starData[i];
+            const pos =
+            g.geometry.attributes.position.array;
 
-        star.angle += star.speed;
+            for(let i=0;i<g.stars.length;i++){
 
-        const radius = star.radius;
+                const i3=i*3;
 
-        // differential rotation
-        pos[i3] =
-        Math.cos(star.angle)*radius;
+                const s=g.stars[i];
 
-        pos[i3+1] =
-        star.y;
+                s.angle += s.speed;
 
-        pos[i3+2] =
-        Math.sin(star.angle)*radius;
-    }
+                pos[i3]=
+                Math.cos(s.angle)
+                *s.radius;
 
-    geometry.attributes.position.needsUpdate = true;
+                pos[i3+2]=
+                Math.sin(s.angle)
+                *s.radius;
+            }
+
+            g.geometry.attributes.position
+            .needsUpdate = true;
+        }
+
+    });
+
 }
 
 
-// ============================================
-// ANIMATION LOOP
-// ============================================
+// =====================================================
+// ANIMATION
+// =====================================================
 
 function animate(){
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(
+    animate
+    );
 
     updateGalaxyMotion();
 
-    ring.rotation.z += 0.02;
-
-    // rotate external galaxies
-    universeGroup.children.forEach(g=>{
-
-        g.rotation.y +=
-        g.userData.rotationSpeed;
-    });
-
-    // subtle galaxy tilt motion
-    galaxyGroup.rotation.y += 0.00015;
+    universe.rotation.y += 0.00002;
 
     controls.update();
 
-    renderer.render(scene,camera);
+    renderer.render(
+    scene,
+    camera
+    );
+
 }
 
 animate();
 
 
-// ============================================
+// =====================================================
 // RESIZE
-// ============================================
+// =====================================================
 
 window.addEventListener(
 'resize',
 ()=>{
 
-    camera.aspect =
-    window.innerWidth/window.innerHeight;
+camera.aspect =
+window.innerWidth/window.innerHeight;
 
-    camera.updateProjectionMatrix();
+camera.updateProjectionMatrix();
 
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
 
 });
 
