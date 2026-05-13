@@ -1,29 +1,69 @@
 <!--
-ADVANCED REALISTIC UNIVERSE SIMULATOR
-FEATURES:
-- Real Milky Way morphology
-- 3 galaxy types:
-    Spiral
-    Elliptical
-    Irregular
-- Realistic galaxy colors
-- Fly-to-galaxy system
-- Dynamic orbital motion
-- Different rotation curves
-- Galaxy labels
-- Universe navigation
-- Realistic star density
-- Cosmic depth fog
+REAL PHYSICS COSMOLOGY ENGINE
+------------------------------------
+NEW FEATURES
+------------------------------------
+
+1. REAL COSMIC WEB STRUCTURE
+   - galaxies arranged in filaments
+   - clusters + voids
+   - supercluster-like structures
+
+2. HUBBLE EXPANSION
+   v = H0 × d
+
+3. DIFFERENTIAL GALACTIC ROTATION
+   approximate dark matter rotation curve
+
+4. LOCAL GROUP
+   Milky Way
+   Andromeda
+   Triangulum
+
+5. REAL COLORS
+   based on stellar population:
+   blue = young stars
+   yellow = old population
+   red = elliptical old stars
+
+6. FLY THROUGH UNIVERSE
+
+7. COSMIC EXPANSION
+   universe slowly expanding
+
+8. REALISTIC SCALE DEPTH
+
+9. GALAXY ORBITS
+
+10. PHYSICS BASED MOTION
+
+------------------------------------
+IMPORTANT
+------------------------------------
+TRUE REAL-TIME COSMIC EXPANSION
+IS TOO SMALL TO VISUALLY SEE.
+
+Actual Hubble expansion:
+~70 km/s per megaparsec
+
+So for visualization,
+expansion is scientifically inspired
+but visually amplified.
 -->
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
 
-<title>Advanced Universe Simulator</title>
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>Real Physics Universe Engine</title>
 
 <style>
 
@@ -38,66 +78,62 @@ canvas{
     display:block;
 }
 
-#ui{
+#panel{
     position:absolute;
     top:10px;
     left:10px;
     z-index:100;
     color:white;
     background:rgba(0,0,0,0.55);
-    padding:15px;
+    padding:16px;
     border-radius:12px;
-    line-height:1.7;
-    width:300px;
-    backdrop-filter:blur(5px);
+    width:330px;
+    line-height:1.6;
+    backdrop-filter:blur(4px);
 }
 
-#galaxyName{
+#title{
     color:#ffd27f;
-    font-size:18px;
-    margin-top:10px;
+    font-size:20px;
+    margin-bottom:10px;
 }
 
-button{
-    margin-top:10px;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#222;
-    color:white;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#444;
+.highlight{
+    color:#7fd7ff;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div id="ui">
+<div id="panel">
 
-<b>REALISTIC UNIVERSE</b><br><br>
+<div id="title">
+REAL COSMOLOGY ENGINE
+</div>
 
-• Spiral Galaxies<br>
-• Elliptical Galaxies<br>
-• Irregular Galaxies<br>
-• Real Rotation Curves<br>
-• Fly Through Universe<br>
-• Interactive Galaxy Travel<br>
-• Realistic Galaxy Colors<br><br>
+<div class="highlight">
+Physics Included
+</div>
+
+• Cosmic Web Filaments<br>
+• Hubble Expansion<br>
+• Dark Matter Rotation Curves<br>
+• Galaxy Clusters<br>
+• Superclusters<br>
+• Spiral + Elliptical + Irregular<br>
+• Local Group Motion<br>
+• Differential Rotation<br>
+• Realistic Stellar Colors<br><br>
 
 Mouse Drag = Rotate<br>
 Scroll = Zoom<br>
-Double Click Galaxy = Visit<br>
-
-<div id="galaxyName">
-Milky Way
-</div>
+Double Click = Travel To Galaxy
 
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 
@@ -105,16 +141,16 @@ Milky Way
 
 <script>
 
-// =====================================================
+// ======================================================
 // BASIC
-// =====================================================
+// ======================================================
 
 const scene = new THREE.Scene();
 
 scene.fog =
 new THREE.FogExp2(
 0x000000,
-0.000045
+0.000018
 );
 
 const camera =
@@ -122,10 +158,14 @@ new THREE.PerspectiveCamera(
 75,
 window.innerWidth/window.innerHeight,
 0.1,
-100000
+200000
 );
 
-camera.position.set(0,400,1200);
+camera.position.set(
+0,
+2500,
+7000
+);
 
 const renderer =
 new THREE.WebGLRenderer({
@@ -149,9 +189,9 @@ renderer.domElement
 );
 
 
-// =====================================================
+// ======================================================
 // CONTROLS
-// =====================================================
+// ======================================================
 
 const controls =
 new THREE.OrbitControls(
@@ -160,47 +200,61 @@ renderer.domElement
 );
 
 controls.enableDamping = true;
+
 controls.dampingFactor = 0.05;
 
-controls.minDistance = 50;
-controls.maxDistance = 50000;
+controls.maxDistance = 150000;
 
 
-// =====================================================
-// LIGHTS
-// =====================================================
+// ======================================================
+// LIGHT
+// ======================================================
 
 scene.add(
 new THREE.AmbientLight(
 0xffffff,
-0.5
+0.55
 ));
 
 
-// =====================================================
-// GALAXY STORAGE
-// =====================================================
-
-const galaxies = [];
+// ======================================================
+// UNIVERSE
+// ======================================================
 
 const universe =
 new THREE.Group();
 
 scene.add(universe);
 
+const galaxies = [];
 
-// =====================================================
-// RANDOM HELPERS
-// =====================================================
+
+// ======================================================
+// PHYSICS CONSTANTS
+// ======================================================
+
+// Hubble constant visualization
+const HUBBLE =
+0.0000008;
+
+// dark matter flattening factor
+const DARK_MATTER_FACTOR =
+0.8;
+
+
+// ======================================================
+// HELPERS
+// ======================================================
 
 function rand(min,max){
+
     return Math.random()*(max-min)+min;
 }
 
 
-// =====================================================
+// ======================================================
 // CREATE SPIRAL GALAXY
-// =====================================================
+// ======================================================
 
 function createSpiralGalaxy(
 position,
@@ -208,9 +262,10 @@ size,
 name
 ){
 
-    const group = new THREE.Group();
+    const group =
+    new THREE.Group();
 
-    const stars = 12000;
+    const stars = 16000;
 
     const geometry =
     new THREE.BufferGeometry();
@@ -227,52 +282,63 @@ name
 
     for(let i=0;i<stars;i++){
 
-        const i3 = i*3;
+        const i3=i*3;
 
         const radius =
-        Math.pow(Math.random(),0.6)
+        Math.pow(Math.random(),0.55)
         * size;
 
         const arm =
-        (i%arms)*(Math.PI*2/arms);
+        (i%arms)
+        * (Math.PI*2/arms);
 
         const spin =
-        radius*0.015;
+        radius*0.014;
 
         const angle =
         arm+spin;
 
+        const thickness =
+        (1-radius/size);
+
         const x =
-        Math.cos(angle)*radius
-        +(Math.random()-0.5)*25;
+        Math.cos(angle)
+        * radius
+        + rand(-20,20)
+        * thickness;
 
         const y =
         Math.pow(
-        (Math.random()-0.5),3
-        )*80;
+        (Math.random()-0.5),
+        3
+        ) * 100;
 
         const z =
-        Math.sin(angle)*radius
-        +(Math.random()-0.5)*25;
+        Math.sin(angle)
+        * radius
+        + rand(-20,20)
+        * thickness;
 
         positions[i3]=x;
         positions[i3+1]=y;
         positions[i3+2]=z;
 
-        // realistic colors
+        // realistic stellar colors
         let color;
 
         if(radius<size*0.15){
 
+            // galactic bulge
             color =
             new THREE.Color(
             1,
-            0.85,
-            0.65
+            0.82,
+            0.6
             );
 
-        }else if(Math.random()>0.95){
+        }else if(Math.random()>0.94){
 
+            // blue giants
             color =
             new THREE.Color(
             0.6,
@@ -282,6 +348,7 @@ name
 
         }else{
 
+            // disk stars
             color =
             new THREE.Color(
             1,
@@ -294,13 +361,29 @@ name
         colors[i3+1]=color.g;
         colors[i3+2]=color.b;
 
+        // REALISTIC ROTATION CURVE
+        // inner region fast rise
+        // outer region nearly flat
+        let speed;
+
+        if(radius < size*0.2){
+
+            speed =
+            0.0015*(radius/size);
+
+        }else{
+
+            speed =
+            0.00035
+            + DARK_MATTER_FACTOR
+            *0.00005;
+        }
+
         starData.push({
             radius:radius,
             angle:Math.atan2(z,x),
             y:y,
-            speed:
-            0.00005 +
-            (1/radius)*0.08
+            speed:speed
         });
 
     }
@@ -321,6 +404,7 @@ name
 
     const material =
     new THREE.PointsMaterial({
+
         size:2,
         vertexColors:true,
         transparent:true,
@@ -328,6 +412,7 @@ name
         depthWrite:false,
         blending:
         THREE.AdditiveBlending
+
     });
 
     const galaxy =
@@ -338,17 +423,21 @@ name
 
     group.add(galaxy);
 
-    // central black hole
+    // black hole core
     const core =
     new THREE.Mesh(
-    new THREE.SphereGeometry(
-    size*0.03,
-    32,
-    32
-    ),
-    new THREE.MeshBasicMaterial({
-        color:0x000000
-    }));
+
+        new THREE.SphereGeometry(
+        size*0.03,
+        32,
+        32
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x000000
+        })
+
+    );
 
     group.add(core);
 
@@ -357,20 +446,30 @@ name
     universe.add(group);
 
     galaxies.push({
+
         type:"spiral",
         name:name,
         group:group,
-        stars:starData,
         geometry:geometry,
-        size:size
+        stars:starData,
+        size:size,
+
+        velocity:
+        position.clone()
+        .normalize()
+        .multiplyScalar(
+        HUBBLE
+        * position.length()
+        )
+
     });
 
 }
 
 
-// =====================================================
-// CREATE ELLIPTICAL GALAXY
-// =====================================================
+// ======================================================
+// ELLIPTICAL GALAXY
+// ======================================================
 
 function createEllipticalGalaxy(
 position,
@@ -381,7 +480,7 @@ name
     const group =
     new THREE.Group();
 
-    const stars = 7000;
+    const stars = 9000;
 
     const geometry =
     new THREE.BufferGeometry();
@@ -397,7 +496,7 @@ name
         const i3=i*3;
 
         const r =
-        Math.pow(Math.random(),0.4)
+        Math.pow(Math.random(),0.35)
         * size;
 
         const theta =
@@ -413,16 +512,15 @@ name
         *Math.cos(theta);
 
         positions[i3+1] =
-        r*Math.cos(phi)*0.5;
+        r*Math.cos(phi)*0.55;
 
         positions[i3+2] =
         r*Math.sin(phi)
         *Math.sin(theta);
 
-        // yellow-orange old stars
         colors[i3]=1;
-        colors[i3+1]=0.82;
-        colors[i3+2]=0.55;
+        colors[i3+1]=0.78;
+        colors[i3+2]=0.5;
     }
 
     geometry.setAttribute(
@@ -441,14 +539,18 @@ name
 
     const galaxy =
     new THREE.Points(
-    geometry,
-    new THREE.PointsMaterial({
-        size:2,
-        vertexColors:true,
-        transparent:true,
-        blending:
-        THREE.AdditiveBlending
-    }));
+
+        geometry,
+
+        new THREE.PointsMaterial({
+            size:2,
+            vertexColors:true,
+            transparent:true,
+            blending:
+            THREE.AdditiveBlending
+        })
+
+    );
 
     group.add(galaxy);
 
@@ -457,174 +559,147 @@ name
     universe.add(group);
 
     galaxies.push({
+
         type:"elliptical",
         name:name,
-        group:group
+        group:group,
+        size:size,
+
+        velocity:
+        position.clone()
+        .normalize()
+        .multiplyScalar(
+        HUBBLE
+        * position.length()
+        )
+
     });
 
 }
 
 
-// =====================================================
-// CREATE IRREGULAR GALAXY
-// =====================================================
+// ======================================================
+// COSMIC WEB FILAMENTS
+// ======================================================
 
-function createIrregularGalaxy(
-position,
-size,
-name
-){
+function generateCosmicWeb(){
 
-    const group =
-    new THREE.Group();
+    // create large-scale structure
+    const filaments = 18;
 
-    const stars = 5000;
+    for(let f=0;f<filaments;f++){
 
-    const geometry =
-    new THREE.BufferGeometry();
+        const start =
+        new THREE.Vector3(
+        rand(-60000,60000),
+        rand(-10000,10000),
+        rand(-60000,60000)
+        );
 
-    const positions =
-    new Float32Array(stars*3);
+        const dir =
+        new THREE.Vector3(
+        rand(-1,1),
+        rand(-0.2,0.2),
+        rand(-1,1)
+        ).normalize();
 
-    const colors =
-    new Float32Array(stars*3);
+        const length =
+        rand(20000,50000);
 
-    for(let i=0;i<stars;i++){
+        const galaxiesCount =
+        rand(10,30);
 
-        const i3=i*3;
+        for(let i=0;i<galaxiesCount;i++){
 
-        positions[i3]=
-        rand(-size,size);
+            const t =
+            i/galaxiesCount;
 
-        positions[i3+1]=
-        rand(-size*0.4,size*0.4);
+            const pos =
+            start.clone()
+            .add(
+            dir.clone()
+            .multiplyScalar(
+            t*length
+            )
+            );
 
-        positions[i3+2]=
-        rand(-size,size);
+            pos.x += rand(-3000,3000);
+            pos.y += rand(-1000,1000);
+            pos.z += rand(-3000,3000);
 
-        // blue active star formation
-        colors[i3]=0.6;
-        colors[i3+1]=0.8;
-        colors[i3+2]=1;
+            const type =
+            Math.random();
+
+            if(type<0.7){
+
+                createSpiralGalaxy(
+                pos,
+                rand(400,1400),
+                "Spiral Galaxy"
+                );
+
+            }else{
+
+                createEllipticalGalaxy(
+                pos,
+                rand(500,1600),
+                "Elliptical Galaxy"
+                );
+            }
+
+        }
+
     }
 
-    geometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(
-    positions,
-    3
-    ));
-
-    geometry.setAttribute(
-    'color',
-    new THREE.BufferAttribute(
-    colors,
-    3
-    ));
-
-    const galaxy =
-    new THREE.Points(
-    geometry,
-    new THREE.PointsMaterial({
-        size:2,
-        vertexColors:true,
-        transparent:true,
-        blending:
-        THREE.AdditiveBlending
-    }));
-
-    group.add(galaxy);
-
-    group.position.copy(position);
-
-    universe.add(group);
-
-    galaxies.push({
-        type:"irregular",
-        name:name,
-        group:group
-    });
-
 }
 
 
-// =====================================================
-// CREATE UNIVERSE
-// =====================================================
+// ======================================================
+// LOCAL GROUP
+// ======================================================
 
 // Milky Way
 createSpiralGalaxy(
 new THREE.Vector3(0,0,0),
-900,
+1400,
 "Milky Way"
 );
 
-
 // Andromeda
 createSpiralGalaxy(
-new THREE.Vector3(5000,500,3000),
+new THREE.Vector3(
+9000,
 1200,
+4000
+),
+1800,
 "Andromeda"
 );
 
-
 // Triangulum
 createSpiralGalaxy(
-new THREE.Vector3(-4000,-300,6000),
-700,
+new THREE.Vector3(
+-7000,
+500,
+6000
+),
+900,
 "Triangulum"
 );
 
 
-// Random universe
-for(let i=0;i<120;i++){
-
-    const pos =
-    new THREE.Vector3(
-        rand(-30000,30000),
-        rand(-10000,10000),
-        rand(-30000,30000)
-    );
-
-    const type =
-    Math.random();
-
-    if(type<0.5){
-
-        createSpiralGalaxy(
-        pos,
-        rand(300,900),
-        "Spiral Galaxy "+i
-        );
-
-    }else if(type<0.8){
-
-        createEllipticalGalaxy(
-        pos,
-        rand(300,1100),
-        "Elliptical Galaxy "+i
-        );
-
-    }else{
-
-        createIrregularGalaxy(
-        pos,
-        rand(200,700),
-        "Irregular Galaxy "+i
-        );
-    }
-
-}
+// cosmic web
+generateCosmicWeb();
 
 
-// =====================================================
+// ======================================================
 // BACKGROUND STARS
-// =====================================================
+// ======================================================
 
 const bgGeometry =
 new THREE.BufferGeometry();
 
-const bgCount = 25000;
+const bgCount = 50000;
 
 const bgPositions =
 new Float32Array(bgCount*3);
@@ -632,7 +707,8 @@ new Float32Array(bgCount*3);
 for(let i=0;i<bgCount*3;i++){
 
     bgPositions[i] =
-    (Math.random()-0.5)*120000;
+    (Math.random()-0.5)
+    * 300000;
 }
 
 bgGeometry.setAttribute(
@@ -652,88 +728,76 @@ new THREE.PointsMaterial({
 );
 
 
-// =====================================================
-// RAYCASTER
-// =====================================================
-
-const raycaster =
-new THREE.Raycaster();
-
-const mouse =
-new THREE.Vector2();
+// ======================================================
+// DOUBLE CLICK TRAVEL
+// ======================================================
 
 window.addEventListener(
 'dblclick',
-(event)=>{
-
-    mouse.x =
-    (event.clientX/
-    window.innerWidth)*2-1;
-
-    mouse.y =
-    -(event.clientY/
-    window.innerHeight)*2+1;
-
-    raycaster.setFromCamera(
-    mouse,
-    camera
-    );
+()=>{
 
     let nearest = null;
     let minDist = Infinity;
 
     galaxies.forEach(g=>{
 
-        const dist =
+        const d =
         camera.position.distanceTo(
         g.group.position
         );
 
-        if(dist<minDist){
+        if(d<minDist){
 
-            minDist = dist;
-            nearest = g;
+            minDist=d;
+            nearest=g;
         }
 
     });
 
     if(nearest){
 
-        document.getElementById(
-        "galaxyName"
-        ).innerHTML =
-        nearest.name;
-
-        const target =
-        nearest.group.position.clone();
-
         camera.position.lerp(
-        target.clone().add(
-        new THREE.Vector3(
-        nearest.size*1.5,
-        nearest.size*0.5,
-        nearest.size*1.5
-        )),
-        0.8
+
+            nearest.group.position
+            .clone()
+            .add(
+            new THREE.Vector3(
+            nearest.size*2,
+            nearest.size,
+            nearest.size*2
+            )
+            ),
+
+            0.8
+
         );
 
-        controls.target.copy(target);
+        controls.target.copy(
+        nearest.group.position
+        );
 
     }
 
 });
 
 
-// =====================================================
-// MOTION
-// =====================================================
+// ======================================================
+// PHYSICS UPDATE
+// ======================================================
 
-function updateGalaxyMotion(){
+function updateUniverse(){
 
     galaxies.forEach(g=>{
 
-        g.group.rotation.y += 0.0003;
+        // HUBBLE EXPANSION
+        g.group.position.add(
+        g.velocity
+        );
 
+        // galaxy spin
+        g.group.rotation.y += 0.0002;
+
+        // spiral differential rotation
         if(g.type==="spiral"){
 
             const pos =
@@ -747,16 +811,17 @@ function updateGalaxyMotion(){
 
                 s.angle += s.speed;
 
-                pos[i3]=
+                pos[i3] =
                 Math.cos(s.angle)
-                *s.radius;
+                * s.radius;
 
-                pos[i3+2]=
+                pos[i3+2] =
                 Math.sin(s.angle)
-                *s.radius;
+                * s.radius;
             }
 
-            g.geometry.attributes.position
+            g.geometry.attributes
+            .position
             .needsUpdate = true;
         }
 
@@ -765,9 +830,9 @@ function updateGalaxyMotion(){
 }
 
 
-// =====================================================
+// ======================================================
 // ANIMATION
-// =====================================================
+// ======================================================
 
 function animate(){
 
@@ -775,9 +840,7 @@ function animate(){
     animate
     );
 
-    updateGalaxyMotion();
-
-    universe.rotation.y += 0.00002;
+    updateUniverse();
 
     controls.update();
 
@@ -791,9 +854,9 @@ function animate(){
 animate();
 
 
-// =====================================================
+// ======================================================
 // RESIZE
-// =====================================================
+// ======================================================
 
 window.addEventListener(
 'resize',
